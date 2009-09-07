@@ -1,0 +1,13 @@
+inc/*
+*.bak
+*.bak?
+*.orig
+blib/*
+META.yml
+MYMETA.json
+Makefile
+*.tar
+*.gz
+*.rpm
+*.old
+pm_to_blib
