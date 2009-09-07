@@ -33,7 +33,7 @@ with 'Fedora::App::ReviewTool::Submitter';
 # debugging
 #use Smart::Comments '###', '####';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 sub _sections { }
 
@@ -97,7 +97,7 @@ sub run {
 
     $c->{bugzilla}->{userid} = prompt 
         "What's your bugzilla login email addy? ",
-        -default => $self->app->_email;
+        -default => $self->app->email;
     
     $c->{bugzilla}->{passwd} = prompt "What's your bugzilla password? "
         if $self->yes || prompt 'Store bugzilla password? ', -YyNn;

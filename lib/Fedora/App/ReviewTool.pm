@@ -29,29 +29,29 @@ use Template;
 
 use namespace::clean -except => [ 'meta', 'section_data' ];
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 extends qw{ MooseX::App::Cmd };
 
 #############################################################################
 # x509 cert bits (our fedora cert)
 
-has _cert_file => (is => 'ro', lazy_build => 1, isa => File, coerce => 1);
-has _cert      => (is => 'ro', lazy_build => 1, isa => 'Maybe[Crypt::OpenSSL::X509]');
+has cert_file => (is => 'ro', lazy_build => 1, isa => File, coerce => 1);
+has cert      => (is => 'ro', lazy_build => 1, isa => 'Maybe[Crypt::OpenSSL::X509]');
 
-has _email => (is => 'ro', isa => 'Str', lazy_build => 1);
-has _cn    => (is => 'ro', isa => 'Str', lazy_build => 1);
+has email => (is => 'ro', isa => 'Str', lazy_build => 1);
+has cn    => (is => 'ro', isa => 'Str', lazy_build => 1);
 
-sub _build__cert_file { file $ENV{HOME}, '.fedora.cert' }
+sub _build_cert_file { file $ENV{HOME}, '.fedora.cert' }
 
-sub _build__cert      { 
+sub _build_cert      { 
     my $self = shift @_;
     
     # don't bother if file doesn't exist
-    return undef unless $self->_cert_file->stat;
+    return undef unless $self->cert_file->stat;
 
     my $cert;
-    eval { $cert = Crypt::OpenSSL::X509->new_from_file($self->_cert_file) };
+    eval { $cert = Crypt::OpenSSL::X509->new_from_file($self->cert_file) };
 
     return $cert unless $@;
 
@@ -60,21 +60,21 @@ sub _build__cert      {
     return undef;
 }
 
-sub _build__email { 
+sub _build_email { 
     my $self = shift @_;
 
-    return $self->_cert ?  $self->_cert->email : 'nobody@fedoraproject.org';
+    return $self->cert ?  $self->cert->email : 'nobody@fedoraproject.org';
 }
 
-sub _build__cn    { 
+sub _build_cn    { 
     my $self = shift @_;
 
-    return 'nobody' unless $self->_cert;
+    return 'nobody' unless $self->cert;
 
     my @cns = 
         map { s/^CN=//; s/,$//; $_} 
         grep { /^CN/ } 
-        split /\s+/, $self->_cert->subject
+        split /\s+/, $self->cert->subject
         ; 
 
     shift @cns;
@@ -135,6 +135,7 @@ sub branch              { shift->_from_template('branch', @_)              }
 sub update              { shift->_from_template('update', @_)              }
 sub new_tix             { shift->_from_template('new_tix', @_)             }
 sub verbose_submit      { shift->_from_template('verbose_submit', @_)      }
+sub import_task_review  { shift->_from_template('import_task_review', @_)  }
 
 1;
 
@@ -221,6 +222,16 @@ SRPM:     [% bug.srpm.basename %]
 // Begin tix body ////////////////////////////////////////////////////
 [% body %]
 // End tix body //////////////////////////////////////////////////////
+
+__[ import_task_review ]__
+
+// Task Review ///////////////////////////////////////////////////////
+
+[% FOREACH job = jobs -%]
+    [% job %]
+[% END -%]
+
+There are [% jobs.size %] jobs total, and will be executed 3 at a time.
 
 __[ pod ]__
 

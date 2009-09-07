@@ -26,7 +26,7 @@ with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Koji';
 with 'Fedora::App::ReviewTool::Reviewer';
 
-sub _sections { qw{ base bugzilla koji submit } }
+sub _sections { qw{ bugzilla fas } }
 
 sub run {
     my ($self, $opts, $args) = @_;

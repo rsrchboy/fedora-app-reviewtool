@@ -27,7 +27,7 @@ use Path::Class;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 extends qw{ MooseX::App::Cmd::Command };
 

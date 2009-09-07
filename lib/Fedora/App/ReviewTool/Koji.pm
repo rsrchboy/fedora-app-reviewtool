@@ -20,14 +20,7 @@ use namespace::clean -except => 'meta';
 # debugging
 #use Smart::Comments;
 
-our $VERSION = '0.09';
-
-# we don't actually use this yet
-#with 'MooseX::Role::XMLRPC::Client' => {
-#    name       => '_kojirpc',
-#    uri        => 'http://koji.fedoraproject.org/kojihub',
-#    login_info => 0,
-#};
+our $VERSION = '0.10';
 
 has koji => (
     is            => 'rw',
@@ -110,11 +103,24 @@ sub koji_run_scratch {
 
     # if we're here, the build failed
     $self->_koji_success(0);
-    #die "Koji failed! ($uri): \n" . join q{}, @output;
-    #$self->logger->logdie("Koji failed! ($uri): \n" . join q{}, @output);
     $self->log->warn("Koji failed! ($uri): \n" . join q{}, @output);
 }
 
+# this is horribly hackish, and I certainly hope it won't be around any longer
+# than it has to (read: until Fedora::Koji is available)
+
+# we don't actually use this yet
+with 'MooseX::Role::XMLRPC::Client' => {
+    name       => '_kojirpc',
+    uri        => 'http://koji.fedoraproject.org/kojihub',
+    login_info => 0,
+};
+
+sub get_koji_task_children {
+    my ($self, $task_id) = @_;
+ 
+    return $self->_kojirpc_rpc->simple_request('getTaskChildren', $task_id);
+}
 
 1;
 

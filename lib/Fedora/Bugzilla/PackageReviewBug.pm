@@ -21,9 +21,11 @@ use Moose;
 
 extends 'Fedora::Bugzilla::Bug';
 
+use Fedora::App::ReviewTool::KojiTask;
+
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 my @defaults = (
     traits     => [ 'CascadeClear' ],
@@ -121,6 +123,36 @@ sub _build_package_desc {
 
     (my $desc = $self->summary) =~ s/^.*\s-\s*//;
     return $desc;
+}
+
+has _koji_tasks => (
+    metaclass => 'Collection::List',
+
+    is         => 'ro',
+    isa        => 'ArrayRef[Fedora::App::ReviewTool::KojiTask]',
+    lazy_build => 1,
+    #coerce => 1,# FIXME subtype coercion needed?
+
+    provides => {
+        #'grep'     => 'grep_uris',
+        'empty'    => 'has_koji_tasks',
+        'elements' => 'koji_tasks',
+        'map'      => 'map_koji_tasks',
+        'count'    => 'num_koji_tasks',
+    },
+);
+
+# FIXME this'd be even simpler if we'd bother to define types/coercions
+#sub _build__koji_tasks { shift->grep_uris(sub { /koji.*taskID=/ }) }
+sub _build__koji_tasks { 
+    my $self = shift @_;
+    
+    my @tasks = 
+        map { Fedora::App::ReviewTool::KojiTask->new(uri => $_) }
+        $self->grep_uris(sub { /koji.*taskID=/ })
+        ;
+
+    return \@tasks;
 }
 
 1;

@@ -28,7 +28,7 @@ use Regexp::Common;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 has remote_loc => (
     traits        => [ 'Getopt' ],
@@ -49,7 +49,7 @@ has baseuri => (
     documentation => 'base uri of where the review files are',
 );
 
-sub _build_baseuri { 'http://fedorapeople.org/~' . shift->app->_cn . '/review/' }
+sub _build_baseuri { 'http://fedorapeople.org/~' . shift->app->cn . '/review/' }
 
 ##
 ## Base packagename options

@@ -19,6 +19,7 @@ requires 'MooseX::Types::DateTime';
 requires 'MooseX::Types::Path::Class';
 requires 'MooseX::Types::URI';
 requires 'MooseX::Role::XMLRPC::Client';
+requires 'MooseX::Workers' => '0.04';
 
 # reviewtool
 requires 'Config::Tiny';
@@ -35,6 +36,7 @@ requires 'Path::Class';
 requires 'Readonly';
 requires 'LWP::Simple';
 requires 'Template';
+requires 'Term::Completion';
 requires 'Term::ProgressBar';
 requires 'Term::Size';
 requires 'Text::SimpleTable';
@@ -54,6 +56,7 @@ install_script 'bin/reviewtool';
 no_index directory => 'xt';
 
 extra_tests;
+auto_provides;
 auto_install;
 
 WriteAll;

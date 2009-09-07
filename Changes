@@ -1,5 +1,13 @@
 Revision history for Fedora-App-ReviewTool
 
+0.10 Sun May  3 2009
+- add auto_provides to Makefile.PL
+- unmark methods in Fedora::App::ReviewTool as private
+- (import) it's now possible to override the SRPM to import
+- (import) we now use MooseX::Workers, to try to parallelize koji tasks
+- (review) we try harder to use the koji-built scratch for review purposes...
+  we still have a ton of cleanup to do, but WFN :)
+
 0.09 Mon Apr 27 2009
 - remove an oversight
 

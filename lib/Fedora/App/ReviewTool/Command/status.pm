@@ -39,7 +39,7 @@ with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Koji';
 with 'Fedora::App::ReviewTool::Submitter';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 has just_reviews => (
     is            => 'rw',

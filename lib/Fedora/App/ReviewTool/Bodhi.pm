@@ -56,10 +56,12 @@ has fas_passwd => (
 sub _build_fas_userid {
     my $self = shift @_;
 
-    # if we're here, no password anywhere!
+    # go with the default if we're instructed to not prompt
+    return $self->app->cn if $self->yes;
+
     my $uid = prompt 
         'Please enter your FAS userid:   ', 
-        -default => $self->app->_cn
+        -default => $self->app->cn
         ;
 
     return "$uid";
@@ -159,8 +161,8 @@ sub _build__packagers {
     ### hrm: "$uri"
 
     my $raw_data = $self->_get($uri);
-    my %by_email = map { $_->[1] => $_ } @{ $raw_data->{people} };
-    return \%by_email;
+    my %byemail = map { $_->[1] => $_ } @{ $raw_data->{people} };
+    return \%byemail;
     #return $self->_get($uri);
 }
 

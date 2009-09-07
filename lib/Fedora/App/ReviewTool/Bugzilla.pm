@@ -32,7 +32,7 @@ use Text::SimpleTable;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 has userid => (
     is            => 'rw',
@@ -45,10 +45,10 @@ has userid => (
 sub _build_userid { 
     my $self = shift @_;
     
-    #my $def  = $self->app->_has__email ? $self->app->_email : q{};
+    #my $def  = $self->app->has_email ? $self->app->email : q{};
     my $userid = prompt 
         "What's your bugzilla login email addy? ",
-        -default => $self->app->_email ? $self->app->_email : q{}
+        -default => $self->app->email ? $self->app->email : q{}
         ;
 
     print "Thanks, $userid. You can set this permanently by running setup.\n";

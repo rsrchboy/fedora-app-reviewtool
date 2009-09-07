@@ -57,7 +57,7 @@ with 'Fedora::App::ReviewTool::Bodhi';
 #};
 #sub _build__koji_uri { warn 'here'; return 'https://koji.fedoraproject.org/kojihub' }
 
-sub _sections { qw{ base bugzilla koji review } }
+sub _sections { qw{ bugzilla fas } }
 
 sub run {
     my ($self, $opts, $args) = @_;
@@ -76,16 +76,16 @@ sub run {
         $self->log->info("Working on RHBZ#$id");
         
         # FIXME check!
-        my $bug = $self->_bz->bug($id);
-        
-        # e.g: Review Request: perl-WWW-Curl - Perl extension interface for...
-        my $name = $bug->summary;
-        $name    =~ s/^.*:\s*//;
-        $name    =~ s/\s+-.*$//;
+        my $bug  = $self->_bz->bug($id);
+        my $name = $bug->package_name;
+
+        # FIXME basic "make sure bug is actually a review tix"
 
         print "\nFound: bug $bug, package $name\n\n";
         print $self->bug_table($bug) . "\n";
 
+        # FIXME we should prompt to mark/check for FE-SPONSORNEEDED
+        print "Checking to ensure packager is sponsored...\n\n";        
         print "*** WARNING *** Submitter is not in 'packager' group!\n\n"
             unless $self->has_packager($bug->reporter);
 

@@ -30,8 +30,10 @@ lib/Fedora/App/ReviewTool/Command/take.pm
 lib/Fedora/App/ReviewTool/Command/update.pm
 lib/Fedora/App/ReviewTool/Config.pm
 lib/Fedora/App/ReviewTool/Koji.pm
+lib/Fedora/App/ReviewTool/KojiTask.pm
 lib/Fedora/App/ReviewTool/Reviewer.pm
 lib/Fedora/App/ReviewTool/Submitter.pm
+lib/Fedora/App/ReviewTool/Task.pm
 lib/Fedora/Bugzilla/PackageReviewBug.pm
 Makefile.PL
 MANIFEST

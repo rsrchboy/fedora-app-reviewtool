@@ -34,6 +34,8 @@ use Template;
 use URI::Fetch;
 use URI::Find;
 
+use Fedora::App::ReviewTool::KojiTask;
+
 use namespace::clean -except => 'meta';
 
 has basedir => (
@@ -84,31 +86,38 @@ sub do_review {
     # access the header
     my $srpm_pkg = Archive::RPM->new($srpm);
 
-    my $koji_uri = $self->find_koji_task($bug, $srpm_pkg);
+    my $koji_task = $self->find_koji_task($bug, $srpm_pkg);
 
-    if (!$koji_uri && !$self->no_koji) {
+    if (!$koji_task && !$self->no_koji) {
 
         #if ($self->yes || prompt "Launch koji build?")
         $self->log->info('No koji task link found; running scratch');
         print "No koji task link found; running scratch\n";
         $self->koji_run_scratch($srpm);
 
-        $koji_uri = $self->_koji_uri;
+        # hokey, yes.
+        $koji_task = 
+            Fedora::App::ReviewTool::KojiTask->new(uri => $self->_koji_uri);
 
         if (!$self->_koji_success) {
 
             print "Koji build failed!\n";
-            $bug->add_comment("Koji (FAILURE) $koji_uri")
+            $bug->add_comment("Koji (FAILURE) $koji_task")
                 if $self->yes || prompt 'Post failure? ', -YyNn1;
 
             next PKG_LOOP;
         }
 
-        $bug->add_comment("Koji (success) $koji_uri");
+        $bug->add_comment("Koji (success) $koji_task");
     }
 
     # FIXME make optional?
-    system "firefox $koji_uri" if $koji_uri;
+    if ($koji_task) {
+
+        # bring up the interesting bits
+        system "firefox $koji_task";
+        system "firefox '" . $koji_task->build_log . "'";
+    }
 
     $self->run_rpm($pkg_dir, "-ivh $srpm", 'rpm');
 
@@ -154,14 +163,41 @@ sub do_review {
 
     ### %sha1sum
 
-    my $build_output_fn = $self->run_rpm($pkg_dir, "-ba $spec");
-    # FIXME make optional?
-    system "firefox file://$build_output_fn";
+    my $stuff;
 
+    if ($koji_task && ($self->yes || prompt 'Use prebuilt rpms? ', -YyNn1)) {
 
-    # FIXME
-    my $stuff
-        = `cd $pkg_dir && rpmlint *.spec && rpmcheck && cd noarch && rpmcheck`;
+        print "Pulling down koji-built rpms...\n";    
+        my $prebuilt_dir = 
+            dir $self->basedir, $name, 'koji.' . $koji_task->task_id;
+        $prebuilt_dir->mkpath unless $prebuilt_dir->stat;
+
+        for my $uri ($koji_task->rpms) {
+        
+            print "Fetching $uri...\n";
+            my $resp = URI::Fetch->fetch($uri)
+                or die 'Cannot fetch srpm?! ' . URI::Fetch->errstr;
+
+            (my $file = "$uri") =~ s/^.*=//;
+            $file = file $prebuilt_dir, $file;
+            write_file "$file", $resp->content;
+        }
+
+        # FIXME
+        $stuff  = `cd $pkg_dir && rpmlint *.spec`;
+        $stuff .= `cd $prebuilt_dir  && rpmcheck`;
+    }
+    else {
+
+        print "Building locally...\n";
+        my $build_output_fn = $self->run_rpm($pkg_dir, "-ba $spec");
+        # FIXME make optional?
+        system "firefox file://$build_output_fn";
+
+        # FIXME
+        $stuff
+            = `cd $pkg_dir && rpmlint *.spec && rpmcheck && cd noarch && rpmcheck`;
+    }
 
     #my ($fh, $fn) = tempfile;
     my $fn = file $pkg_dir, "$name.review";
@@ -177,7 +213,7 @@ sub do_review {
             $self->app->section_data('review'),
             {   
                 sha1sum  => \%sha1sum,
-                koji_url => $koji_uri,
+                koji_url => $koji_task->uri,
                 license  => $spec_license,
                 rpmcheck => $stuff,
             },
@@ -253,7 +289,6 @@ $output
 
 1;
 
-
 =head2 find_koji_task($bug, $srpm_pkg)
 
 Looks for a koji scratch build link in any koji uris in the bug.  Prompts if
@@ -264,43 +299,22 @@ necessary; returns undef if we can't find one.
 sub find_koji_task {
     my ($self, $bug, $srpm_pkg) = @_;
 
-    print "\nSearching for koji uris...\n\n";
+    print "\nSearching for koji tasks...\n\n";
+    do { print "No koji tasks found!\n"; return } unless $bug->has_koji_tasks;
+    print 'Found ' . $bug->num_koji_tasks . ".\n\n";
 
-    my @kuris = $bug->grep_uris(sub { /koji.fedoraproject.org/ });
     my $fn = $srpm_pkg->rpm->basename;
 
-    # no point going on if we don't have one...
-    do { print "No koji uris found!\n"; return } unless @kuris;
-    print 'Found ' . scalar @kuris . ".\n\n";
+    for my $ktask ($bug->koji_tasks) {
 
-    URI_LOOP:
-    for my $uri (@kuris) {
+        ### ktask: "$ktask"
+        print 'Checking task #' . $ktask->task_id . "...\n";
 
-        ### uri: "$uri"
-        my $task_num = "$uri";
-        $task_num    =~ s/^.*taskID=//;
-        #$task_num = "$uri";
-        print "Checking task $task_num...\n";
+        if ($ktask->for_srpm eq $fn) {
 
-        my $content = LWP::Simple::get($uri);
-        #my $content  = URI::Fetch->fetch($uri);
-        my @title = 
-            map  { $_ =~ s/^.*,\s*//; $_ =~ s/\).*$//; $_ }
-            grep { /^\s*<title>/              }
-            split /\n/, $content
-            #split /\n/, LWP::Simple::get($uri)
-            ;
-
-        ### @title
-        do { warn "More than one title in task #$task_num?!"; next URI_LOOP }
-            if @title != 1;
-
-        my $build_fn = pop @title;
-
-        if ($build_fn eq $fn) {
-
-            print "Found koji scratch build for $fn at task $task_num.\n\n";
-            return $uri;
+            my $task_num = $ktask->task_id;
+            print "Found build for $fn at task $task_num.\n\n";
+            return $ktask;
         }
     }
 
