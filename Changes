@@ -1,5 +1,10 @@
 Revision history for Fedora-App-ReviewTool
 
+0.11
+- (take) drop redundant "Begin review?"
+- Add Plugins module
+- additional cleanups
+
 0.10 Sun May  3 2009
 - add auto_provides to Makefile.PL
 - unmark methods in Fedora::App::ReviewTool as private

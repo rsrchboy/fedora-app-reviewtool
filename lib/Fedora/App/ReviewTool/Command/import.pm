@@ -114,7 +114,7 @@ sub run {
         next BUG_LOOP unless ($self->yes || prompt "Import $bug? ", -YyNn1);
 
         my $srpm_file;
-        if ($self->yes || prompt 'Look SRPM in the review tix? ', -YyNn1) {
+        if ($self->yes || prompt 'Look for SRPM in the review tix? ', -YyNn1) {
 
             print "\nSearching for latest SRPM...\n";
             my @uris = $bug->grep_uris(sub { /\.src\.rpm$/ });

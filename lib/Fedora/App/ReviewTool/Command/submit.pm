@@ -27,6 +27,8 @@ use IO::Prompt;
 use Path::Class;
 use Template;
 
+use Fedora::App::ReviewTool::KojiTask;
+
 use namespace::clean -except => 'meta';
 
 extends qw{ MooseX::App::Cmd::Command };
@@ -65,7 +67,7 @@ has additional_comment => (
     is            => 'rw',
     isa           => 'Str',
     cmd_flag      => 'additional-comment',
-    cmd_aliases   => [ 'c' ],
+    cmd_aliases   => [ 'comment' ],
     documentation => 'Additional comment to append to tix',
 );
 
@@ -170,8 +172,14 @@ sub run {
         
         }
 
+        # FIXME we really need to refactor all the koji stuff
+        my $ktask = 
+            Fedora::App::ReviewTool::KojiTask->new(uri => $self->_koji_uri);
+
+        # FIXME
+        system "firefox '" . $ktask->build_log . "'";
+
         # push to fedorapeople space
-        # FIXME yeah, I'd rather use Net::SSH2, but ssh-agent is easy...
         print "Pushing package and spec to fedorapeople...\n";
         $self->push_to_reviewspace($srpm_file, $spec);
         print "...done.\n\n";

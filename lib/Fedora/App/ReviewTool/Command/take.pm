@@ -89,6 +89,8 @@ sub run {
         print "*** WARNING *** Submitter is not in 'packager' group!\n\n"
             unless $self->has_packager($bug->reporter);
 
+        print "Comment #0:\n\n" . $bug->first_comment . "\n\n";
+
         if ($bug->has_flag('fedora-review')) {
 
             #if ($bug->get_flag('fedora-review') eq
@@ -107,8 +109,7 @@ sub run {
 
         next PKG_LOOP unless $self->yes || prompt 'Start review? ', -YyNn1;
         
-        $self->do_review($bug) 
-            if $self->yes || prompt 'Begin review? ', -YyNn1;
+        $self->do_review($bug); 
         
         print "\n";
         # end pkg loop...

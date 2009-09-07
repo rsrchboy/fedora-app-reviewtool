@@ -57,11 +57,12 @@ sub _build__config { Config::Tiny->read(shift->configfile) }
 sub get_config_from_file {
     my ($class, $file) = @_;
 
+    ### configfile: $file
     my $config = Config::Tiny->read($file);
 
     ### hmm: $config
 
-    my %c;
+    my %c = %{ $config->{_} };
     CFG_LOOP:
     for my $key ($class->_sections) {
     

@@ -23,6 +23,7 @@ requires 'MooseX::Workers' => '0.04';
 
 # reviewtool
 requires 'Config::Tiny';
+requires 'CPANPLUS::Backend';
 requires 'Crypt::OpenSSL::X509';
 requires 'Data::Section';
 requires 'Digest::SHA1';
@@ -32,8 +33,10 @@ requires 'File::Temp';
 requires 'FindBin';
 requires 'IO::Prompt';
 requires 'IPC::System::Simple';
+requires 'Module::Pluggable::Ordered';
 requires 'Path::Class';
 requires 'Readonly';
+requires 'RPM::Spec';
 requires 'LWP::Simple';
 requires 'Template';
 requires 'Term::Completion';
@@ -58,6 +61,7 @@ no_index directory => 'xt';
 extra_tests;
 auto_provides;
 auto_install;
+write_mymeta_json;
 
 WriteAll;
 

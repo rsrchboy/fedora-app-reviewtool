@@ -1,0 +1,14 @@
+blib
+pm_to_blib
+MANIFEST.bak
+MANIFEST.SKIP~
+MANIFEST.SKIP
+cover_db
+Makefile$
+Makefile.old$
+Fedora-App-.*$
+\.swp$
+\.bak$
+\.orig$
+\.new$
+\.tar\.gz$

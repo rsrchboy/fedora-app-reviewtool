@@ -23,6 +23,7 @@ use MooseX::Types::Path::Class qw{ Dir File };
 use MooseX::Types::URI qw{ Uri };
 
 use Archive::RPM;
+use CPANPLUS::Backend;
 use Digest::SHA1 qw{ sha1_hex };
 use File::Slurp;
 use File::Temp qw{ tempfile tempdir };

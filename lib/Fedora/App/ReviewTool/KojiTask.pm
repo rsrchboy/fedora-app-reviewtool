@@ -156,6 +156,7 @@ has build_log => (is => 'ro', isa => Uri, lazy_build => 1);
 has root_log  => (is => 'ro', isa => Uri, lazy_build => 1);
 has state_log => (is => 'ro', isa => Uri, lazy_build => 1);
 
+# if this is a parent task, just find the logs of a child task
 sub _build_build_log { shift->_find_link(sub { /build\.log/ }) }
 sub _build_root_log  { shift->_find_link(sub { /root\.log/  }) }
 sub _build_state_log { shift->_find_link(sub { /state\.log/ }) }
