@@ -33,7 +33,7 @@ with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Config';
 with 'Fedora::App::ReviewTool::Submitter';
 
-our $VERSION = '0.10';
+our $VERSION = '0.10_01';
 
 # regexps that if the rpm name matches, an initial_cc entry is added
 my %INITIAL_CC = (
@@ -131,7 +131,7 @@ sub run {
             branch_req => $branch_req,
         );
 
-        if ($self->yes || prompt "Post branch request? ", -YyNn) {
+        if ($self->yes || prompt "Post branch request? ", -YyNn1) {
 
             print "\nPosting...\n";
 
