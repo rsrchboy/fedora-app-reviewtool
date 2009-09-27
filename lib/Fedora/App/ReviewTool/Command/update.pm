@@ -18,16 +18,18 @@
 package Fedora::App::ReviewTool::Command::update;
 
 use Moose;
-
 use MooseX::Types::Path::Class qw{ File };
 
 use Archive::RPM;
 use IO::Prompt;
 use Path::Class;
 
+# debugging...
+#use Smart::Comments;
+
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.10';
+our $VERSION = '0.10_01';
 
 extends qw{ MooseX::App::Cmd::Command };
 
@@ -105,11 +107,18 @@ sub run {
             print "Koji build done; we took $min minutes, $sec seconds.\n\n";
         }
 
+        my $cfile;
+        $cfile = $self->external_edit
+            if $self->yes || prompt "\nAdd an additional comment? ", -YyNn1;
+
+        ### $cfile
+
         my $baseuri = $self->baseuri;
         my $comment = $self->app->update(
             srpm        => "$baseuri" . $srpm_file->basename,
             spec        => "$baseuri" . $spec->basename,
             koji        => $self->_koji_uri,
+            comment     => $cfile ? $cfile->slurp : undef,
         );
 
         my $sum = $info->{summary};

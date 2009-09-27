@@ -1,17 +1,20 @@
 package Fedora::App::ReviewTool::Config;
 
 use Moose::Role;
-
-use Config::Tiny;
 use MooseX::Types::Path::Class qw{ File };
 use MooseX::Types::URI qw{ Uri };
+
+use autodie 'system';
+use Config::Tiny;
+use File::Slurp 'slurp';
+use Path::Class;
 
 use namespace::clean -except => 'meta';
 
 # debug
 #use Smart::Comments;
 
-our $VERSION = '0.10';
+our $VERSION = '0.10_01';
 
 ##
 ## Base attributes
@@ -108,6 +111,29 @@ sub enable_logging {
     Log::Log4perl->easy_init($INFO);
 
     return;
+}
+
+#############################################################################
+# Editor (temp files, etc) bits 
+
+has editor => (
+    is => 'ro', isa => 'Str', default => '/usr/bin/vim',
+    documentation => 'The external editor to use (default: vim)',
+);
+
+sub external_edit {
+    # my ($self, $file, $text) = @_;
+    my $self   = shift @_;
+    my $file   = (shift @_ || file(File::Temp->new(UNLINK => 0)->filename));
+    my $text   = shift @_;
+    my $editor = $self->editor;
+
+    # write file neatly handles scalar and array refs, as well
+    write_file($file, $text) if $text;
+
+    # run the editor, return the file...  note we'll ABEND if aborted
+    system "$editor $file";
+    return $file;
 }
 
 1;

@@ -18,8 +18,9 @@
 package Fedora::App::ReviewTool;
 
 use Moose;
-
 use MooseX::Types::Path::Class ':all';
+
+extends qw{ MooseX::App::Cmd };
 
 # all templates are kept in here.
 use Data::Section -setup;
@@ -29,9 +30,7 @@ use Template;
 
 use namespace::clean -except => [ 'meta', 'section_data' ];
 
-our $VERSION = '0.10';
-
-extends qw{ MooseX::App::Cmd };
+our $VERSION = '0.10_01';
 
 #############################################################################
 # x509 cert bits (our fedora cert)
@@ -162,6 +161,10 @@ Final provides / requires are sane:
 
 [% rpmcheck %]
 __[ update ]__
+[% IF comment -%]
+[% comment %]
+
+[% END -%]
 Spec URL: [% spec %]
 SRPM URL: [% srpm %]
 
