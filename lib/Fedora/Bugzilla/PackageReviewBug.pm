@@ -18,20 +18,18 @@
 package Fedora::Bugzilla::PackageReviewBug;
 
 use Moose;
-
-extends 'Fedora::Bugzilla::Bug';
-
+use MooseX::CascadeClearing;
+use namespace::autoclean;
 use Fedora::App::ReviewTool::KojiTask;
 
-use namespace::clean -except => 'meta';
+extends 'Fedora::Bugzilla::Bug';
 
 our $VERSION = '0.10_01';
 
 my @defaults = (
-    traits     => [ 'CascadeClear' ],
-    is         => 'ro',
-    clear_on   => 'data',
-    lazy_build => 1,
+    is           => 'ro',
+    clear_master => 'data',
+    lazy_build   => 1,
 );
 
 # approved, rejected, open

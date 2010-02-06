@@ -7,6 +7,7 @@ all_from 'lib/Fedora/App/ReviewTool.pm';
 author   'Chris Weyl <cweyl@alumni.drew.edu>';
 
 requires 'autodie';
+requires 'namespace::autoclean';
 requires 'namespace::clean';
 
 requires 'MooseX::App::Cmd';
@@ -15,8 +16,7 @@ requires 'Moose';
 requires 'Moose::Role';
 requires 'Moose::Util::TypeConstraints';
 #requires 'MooseX::StrictConstructor';
-requires 'MooseX::Traits::Attribute::CascadeClear';
-requires 'MooseX::Traits::Attribute::CascadeClearMaster';
+requires 'MooseX::CascadeClearing' => '0.02';
 requires 'MooseX::Types::DateTime';
 requires 'MooseX::Types::Path::Class';
 requires 'MooseX::Types::URI';
