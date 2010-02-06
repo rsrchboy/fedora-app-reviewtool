@@ -1,5 +1,7 @@
 use inc::Module::Install;
 
+githubmeta;
+
 name     'Fedora-App-ReviewTool';
 all_from 'lib/Fedora/App/ReviewTool.pm';
 author   'Chris Weyl <cweyl@alumni.drew.edu>';
@@ -26,7 +28,7 @@ requires 'Config::Tiny';
 requires 'Crypt::OpenSSL::X509';
 requires 'Data::Section';
 requires 'Digest::SHA1';
-requires 'Fedora::Bugzilla' => '0.10';
+requires 'Fedora::Bugzilla' => '0.13';
 requires 'File::Slurp';
 requires 'File::Temp';
 requires 'FindBin';
@@ -38,7 +40,7 @@ requires 'LWP::Simple';
 requires 'Template';
 requires 'Term::Completion';
 requires 'Term::ProgressBar';
-requires 'Term::Size';
+requires 'Term::Size::Perl';
 requires 'Text::SimpleTable';
 requires 'URI::Fetch';
 requires 'URI::Find';
