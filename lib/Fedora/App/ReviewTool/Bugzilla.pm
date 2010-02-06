@@ -18,7 +18,7 @@
 package Fedora::App::ReviewTool::Bugzilla;
 
 use Moose::Role;
-
+use namespace::autoclean;
 use Fedora::Bugzilla;
 use Fedora::Bugzilla::PackageReviewBug;
 
@@ -29,8 +29,6 @@ use Text::SimpleTable;
 
 # debugging
 #use Smart::Comments '###', '####';
-
-use namespace::clean -except => 'meta';
 
 our $VERSION = '0.10_01';
 

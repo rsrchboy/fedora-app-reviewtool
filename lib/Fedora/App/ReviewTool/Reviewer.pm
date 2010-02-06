@@ -18,7 +18,7 @@
 package Fedora::App::ReviewTool::Reviewer;
 
 use Moose::Role;
-
+use namespace::autoclean;
 use MooseX::Types::Path::Class qw{ Dir File };
 use MooseX::Types::URI qw{ Uri };
 
@@ -34,8 +34,6 @@ use URI::Fetch;
 use URI::Find;
 
 use Fedora::App::ReviewTool::KojiTask;
-
-use namespace::clean -except => 'meta';
 
 # debug...
 use Smart::Comments '###', '####';
