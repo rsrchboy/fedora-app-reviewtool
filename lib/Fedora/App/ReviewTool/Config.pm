@@ -1,15 +1,16 @@
 package Fedora::App::ReviewTool::Config;
 
 use Moose::Role;
-use MooseX::Types::Path::Class qw{ File };
+use MooseX::Types::Path::Class ':all';
 use MooseX::Types::URI qw{ Uri };
 
 use autodie 'system';
+use namespace::autoclean;
+
 use Config::Tiny;
 use File::Slurp 'slurp';
 use Path::Class;
 
-use namespace::clean -except => 'meta';
 
 # debug
 #use Smart::Comments;
@@ -44,8 +45,11 @@ with 'MooseX::ConfigFromFile';
 
 requires '_sections';
 
-has '+configfile' => ( 
-    default => "$ENV{HOME}/.reviewtool.ini",
+has configfile => (
+    is            => 'rw',
+    isa           => File,
+    coerce        => 1,
+    default       => "$ENV{HOME}/.reviewtool.ini",
     documentation => 'configuration file to use',
 );
 
