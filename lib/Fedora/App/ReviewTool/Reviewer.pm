@@ -27,7 +27,6 @@ use Digest::SHA1 qw{ sha1_hex };
 use File::Slurp;
 use File::Temp qw{ tempfile tempdir };
 use IO::Prompt;
-use LWP::Simple qw{ };
 use Path::Class;
 use Readonly;
 use Template;
@@ -53,7 +52,7 @@ has basedir => (
 sub _build_basedir { "$ENV{HOME}/reviews" }
 
 ##
-## Reviewing methods! 
+## Reviewing methods!
 ##
 
 sub do_review {
@@ -99,7 +98,7 @@ sub do_review {
         $self->koji_run_scratch($srpm);
 
         # hokey, yes.
-        $koji_task = 
+        $koji_task =
             Fedora::App::ReviewTool::KojiTask->new(uri => $self->_koji_uri);
 
         if (!$self->_koji_success) {
@@ -140,13 +139,14 @@ sub do_review {
 
         # rename
 
-        # fetch - I'd rather use URI::Fetch, but it tends to decompress...
-        #$resp = URI::Fetch->fetch($source)
-        #    or die "Cannot fetch $source : " . URI::Fetch->errstr;
-        #my $filename        = $resp->http_response->filename;
+        # fetch - note the magic to keep the tarball from being uncompressed
+        local $URI::Fetch::HAS_ZLIB = 0;
+        $resp = URI::Fetch->fetch($source)
+            or die "Cannot fetch $source : " . URI::Fetch->errstr;
 
+        #my $filename        = $resp->http_response->filename;
         my $filename = ($source->path_segments)[-1];
-        my $content  = LWP::Simple::get($source);
+        my $content = $resp->content;
         my $srpm     = file $pkg_dir, "$filename.srpm";
         my $upstream = file $pkg_dir, $filename;
 
@@ -172,13 +172,13 @@ sub do_review {
 
     if ($koji_task && ($self->yes || prompt 'Use prebuilt rpms? ', -YyNn1)) {
 
-        print "Pulling down koji-built rpms...\n";    
-        my $prebuilt_dir = 
+        print "Pulling down koji-built rpms...\n";
+        my $prebuilt_dir =
             dir $self->basedir, $name, 'koji.' . $koji_task->task_id;
         $prebuilt_dir->mkpath unless $prebuilt_dir->stat;
 
         for my $uri ($koji_task->rpms) {
-        
+
             print "Fetching $uri...\n";
             my $resp = URI::Fetch->fetch($uri)
                 or die 'Cannot fetch srpm?! ' . URI::Fetch->errstr;
@@ -216,7 +216,7 @@ sub do_review {
         my $tt2 = Template->new;
         $tt2->process(
             $self->app->section_data('review'),
-            {   
+            {
                 sha1sum  => \%sha1sum,
                 koji_url => $koji_task->uri,
                 license  => $spec_license,
@@ -280,14 +280,14 @@ Error!
 
 cmd:    $cmd
 error:  $?
-Output: 
+Output:
 
 $output
 ";
     }
 
     my (undef, $fn) = tempfile('rt.XXXXXXX', TMPDIR => 1);
-    write_file $fn, \$output; 
+    write_file $fn, \$output;
 
     return file $fn;
 }
@@ -393,7 +393,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the 
+License along with this library; if not, write to the
 
     Free Software Foundation, Inc.
     59 Temple Place, Suite 330
