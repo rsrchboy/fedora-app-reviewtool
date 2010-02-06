@@ -20,7 +20,7 @@ use namespace::clean -except => 'meta';
 # debugging
 #use Smart::Comments;
 
-our $VERSION = '0.10';
+our $VERSION = '0.10_01';
 
 has koji => (
     is            => 'rw',

@@ -32,7 +32,7 @@ with 'Fedora::App::ReviewTool::Config';
 with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Submitter';
 
-our $VERSION = '0.10';
+our $VERSION = '0.10_01';
 
 sub _sections { qw{ bugzilla branch close } }
 

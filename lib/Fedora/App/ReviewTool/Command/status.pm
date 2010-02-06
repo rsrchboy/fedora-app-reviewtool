@@ -23,9 +23,6 @@ use MooseX::Types::Path::Class qw{ File };
 
 use DateTime::TimeZone::Local;
 use Path::Class;
-use Term::ProgressBar;
-use Term::Size;
-use Text::SimpleTable;
 
 # debugging
 #use Smart::Comments '###', '####';
@@ -39,7 +36,7 @@ with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Koji';
 with 'Fedora::App::ReviewTool::Submitter';
 
-our $VERSION = '0.10';
+our $VERSION = '0.10_01';
 
 has just_reviews => (
     is            => 'rw',
@@ -86,6 +83,8 @@ sub run {
 
     return;
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

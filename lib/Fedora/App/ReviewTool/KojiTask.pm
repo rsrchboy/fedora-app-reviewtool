@@ -32,7 +32,7 @@ use namespace::clean except => 'meta';
 
 use overload '""' => sub { shift->uri }, fallback => 1;
 
-our $VERSION = '0.10';
+our $VERSION = '0.10_01';
 
 # for debugging
 #use Smart::Comments '###', '####';

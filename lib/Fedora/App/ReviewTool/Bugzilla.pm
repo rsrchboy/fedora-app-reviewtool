@@ -24,7 +24,7 @@ use Fedora::Bugzilla::PackageReviewBug;
 
 use IO::Prompt;
 use Term::ProgressBar;
-use Term::Size;
+use Term::Size::Perl;
 use Text::SimpleTable;
 
 # debugging
@@ -32,7 +32,7 @@ use Text::SimpleTable;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.10';
+our $VERSION = '0.10_01';
 
 has userid => (
     is            => 'rw',
@@ -226,8 +226,12 @@ sub bug_table {
         if $bugs->isa('Fedora::Bugzilla::Bug');
 
     # figure out how much we have to play with
-    my ($cols, $rows) = Term::Size::chars *STDOUT{IO};
-    my $len = $cols - (6+1+1 + 3*3 + 2*2);
+    my ($cols, $rows) = Term::Size::Perl::chars; # *STDOUT{IO};
+    #my ($cols, $rows) = $ENV{COLUMNS} ? ($ENV{COLUMNS}-6, -1) : Term::Size::chars;
+    #my ($cols, $rows) = ($ENV{COLUMNS}-6, -1);
+
+    #my ($cols, $rows) = Term::Size::chars; # *STDOUT{IO};
+    my $len = $cols - (6+1+1 + 3*3 + 2*2) - 4;
 
     ### doing submitted...
     my $t = Text::SimpleTable->new(

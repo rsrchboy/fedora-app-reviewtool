@@ -38,6 +38,9 @@ use Fedora::App::ReviewTool::KojiTask;
 
 use namespace::clean -except => 'meta';
 
+# debug...
+use Smart::Comments '###', '####';
+
 has basedir => (
     is     => 'rw',
     isa    => Dir,
@@ -157,6 +160,8 @@ sub do_review {
 
         if ($s ne $u) {
 
+            ### $s
+            ### $u
             die "Still need to fail sha1 check properly";
         }
     }

@@ -21,7 +21,7 @@ use Moose;
 
 use overload '""' => sub { shift->desc }, fallback => 1;
 
-our $VERSION = '0.10';
+our $VERSION = '0.10_01';
 
 has job  => (isa => 'CodeRef', is => 'ro', required => 1);
 has desc => (isa => 'Str',     is => 'ro', required => 1);

@@ -25,7 +25,7 @@ use Fedora::App::ReviewTool::KojiTask;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.10';
+our $VERSION = '0.10_01';
 
 my @defaults = (
     traits     => [ 'CascadeClear' ],

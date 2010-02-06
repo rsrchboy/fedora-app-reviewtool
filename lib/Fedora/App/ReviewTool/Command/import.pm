@@ -49,7 +49,7 @@ with 'Fedora::App::ReviewTool::Submitter';
 
 with 'MooseX::Workers';
 
-our $VERSION = '0.10';
+our $VERSION = '0.10_01';
 
 sub _sections { qw{ bugzilla fas } }
 

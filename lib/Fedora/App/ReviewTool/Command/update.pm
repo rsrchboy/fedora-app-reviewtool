@@ -118,7 +118,7 @@ sub run {
             srpm        => "$baseuri" . $srpm_file->basename,
             spec        => "$baseuri" . $spec->basename,
             koji        => $self->_koji_uri,
-            comment     => $cfile ? $cfile->slurp : undef,
+            comment     => $cfile ? scalar $cfile->slurp : undef,
         );
 
         my $sum = $info->{summary};
