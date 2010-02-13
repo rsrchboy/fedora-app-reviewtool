@@ -152,9 +152,9 @@ sub _build__child_tasks {
     return \@tasks;
 }
 
-has build_log => (is => 'ro', isa => Uri, lazy_build => 1);
-has root_log  => (is => 'ro', isa => Uri, lazy_build => 1);
-has state_log => (is => 'ro', isa => Uri, lazy_build => 1);
+has build_log => (is => 'ro', isa => Uri, coerce => 1, lazy_build => 1);
+has root_log  => (is => 'ro', isa => Uri, coerce => 1, lazy_build => 1);
+has state_log => (is => 'ro', isa => Uri, coerce => 1, lazy_build => 1);
 
 sub _build_build_log { shift->_find_link(sub { /build\.log/ }) }
 sub _build_root_log  { shift->_find_link(sub { /root\.log/  }) }
