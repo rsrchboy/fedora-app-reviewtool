@@ -37,9 +37,9 @@ has koji_target => (
     isa           => 'Str',
     lazy_build    => 1,
     cmd_flag      => 'koji-target',
-    documentation => 'Target for scratch build (default: dist-f12)',
+    documentation => 'Target for scratch build (default: dist-f13)',
 );
-sub _build_koji_target { 'dist-f12' }
+sub _build_koji_target { 'dist-f13' }
 
 has no_koji => (
     traits        => [ 'Getopt' ],
