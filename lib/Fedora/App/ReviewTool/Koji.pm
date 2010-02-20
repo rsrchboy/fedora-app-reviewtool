@@ -82,6 +82,8 @@ sub koji_run_scratch {
     
     my @output = `$cmd`;
 
+    ### @output
+
     # $CHILD_ERROR aka $?, which I can never remember...
     #die "koji failed with: $CHILD_ERROR\n" if $CHILD_ERROR;
 
