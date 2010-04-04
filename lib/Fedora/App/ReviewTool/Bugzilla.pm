@@ -19,18 +19,21 @@ package Fedora::App::ReviewTool::Bugzilla;
 
 use Moose::Role;
 use namespace::autoclean;
-use Fedora::Bugzilla;
-use Fedora::Bugzilla::PackageReviewBug;
 
 use IO::Prompt;
-use Term::ProgressBar;
 use Term::Size::Perl;
-use Text::SimpleTable;
 
 # debugging
 #use Smart::Comments '###', '####';
 
 our $VERSION = '0.10_01';
+
+requires 'run';
+
+before run => sub {
+
+    Class::MOP::load_class($_) for qw{ Text::SimpleTable Term::ProgressBar }
+};
 
 has userid => (
     is            => 'rw',
@@ -82,6 +85,10 @@ has _bz => (
 
 sub _build__bz {
     my $self = shift @_;
+
+    # don't load until we actually need them
+    Class::MOP::load_class('Fedora::Bugzilla');
+    Class::MOP::load_class('Fedora::Bugzilla::PackageReviewBug');
 
     my $bz;
     
