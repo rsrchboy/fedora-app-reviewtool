@@ -93,7 +93,7 @@ has debug => (
     documentation => 'Enable somewhat verbose logging',
 );
 
-# before run => sub { shift->enable_logging }
+before run => sub { shift->enable_logging };
 
 sub enable_logging {
     my $self = shift @_;

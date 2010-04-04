@@ -62,7 +62,6 @@ sub run {
     my ($self, $opts, $args) = @_;
     
     # first things first.
-    $self->enable_logging;
     $self->app->startup_checks;
 
     unless ($self->just_reviews) {

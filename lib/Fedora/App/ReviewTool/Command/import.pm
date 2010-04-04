@@ -79,7 +79,6 @@ sub _build_cvs_root
 sub run {
     my ($self, $opts, $args) = @_;
    
-    $self->enable_logging;
     $self->app->startup_checks;
 
     my $bugs;

@@ -31,9 +31,6 @@ sub _sections { qw{ bugzilla fas } }
 sub run {
     my ($self, $opts, $args) = @_;
     
-    # first things first.
-    $self->enable_logging;
-
     print "Retrieving reviews status from bugzilla....\n\n";
     my $bugs = $self->find_my_active_reviews;
     print $bugs->num_ids . " bugs found.\n\n";

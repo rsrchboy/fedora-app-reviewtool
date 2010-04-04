@@ -62,9 +62,6 @@ sub _sections { qw{ bugzilla fas } }
 sub run {
     my ($self, $opts, $args) = @_;
     
-    # first things first.
-    $self->enable_logging;
-
     $self->log->info('Starting take process.');
 
     # right now we assume we've been passed either bug ids or aliases; ideally
