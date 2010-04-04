@@ -129,7 +129,7 @@ sub run {
         # check to ensure we haven't done this already
         if (my $bug = $self->find_bug_for_pkg($name))  {
 
-            die "\n$name already has a review bug: $bug\n"
+            die "\n$name already has a review bug: $bug (try --force)\n"
                 unless $self->force;
         }
 
