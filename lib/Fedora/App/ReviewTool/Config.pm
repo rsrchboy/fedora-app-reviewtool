@@ -1,25 +1,23 @@
 package Fedora::App::ReviewTool::Config;
 
 use Moose::Role;
+use namespace::autoclean;
 use MooseX::Types::Path::Class ':all';
 use MooseX::Types::URI qw{ Uri };
 
 use autodie 'system';
-use namespace::autoclean;
 
 use Config::Tiny;
 use File::Slurp 'slurp';
 use Path::Class;
 
-
 # debug
-#use Smart::Comments;
+#use Smart::Comments '###', '####';
 
 our $VERSION = '0.10_01';
 
-##
-## Base attributes
-##
+#############################################################################
+# Attributes
 
 has test => (
     is => 'ro',
@@ -37,9 +35,9 @@ has yes => (
     documentation => q{Assume yes; don't prompt},
 );
 
-##
-## Configuration bits
-##
+
+#############################################################################
+# Configuration bits
 
 with 'MooseX::ConfigFromFile';
 
@@ -82,19 +80,11 @@ sub get_config_from_file {
     return \%c;
 }
 
-##
-## Logging
-##
+#############################################################################
+# Logging
 
 use Log::Log4perl qw{ :easy };
-
 with 'MooseX::Log::Log4perl';
-
-# don't need this showing up in the help...
-#sub add_traits {
-
-#    has '+logger' => ( traits => [ 'NoGetopt' ] );
-#}
 
 has debug => (
     is => 'ro',
@@ -102,6 +92,8 @@ has debug => (
     default => 0,
     documentation => 'Enable somewhat verbose logging',
 );
+
+# before run => sub { shift->enable_logging }
 
 sub enable_logging {
     my $self = shift @_;
