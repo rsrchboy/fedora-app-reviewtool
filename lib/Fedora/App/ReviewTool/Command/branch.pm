@@ -43,7 +43,7 @@ my %INITIAL_CC = (
 has branches => (
     is            => 'rw',
     isa           => 'Str',
-    default       => 'F-9 F-10 F-11 devel',
+    default       => 'F-11 F-12 F-13 devel',
     documentation => 'initial branches to request',
 );
 
