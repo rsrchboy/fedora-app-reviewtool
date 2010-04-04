@@ -22,18 +22,9 @@ use namespace::autoclean;
 use MooseX::Types::Path::Class qw{ Dir File };
 use MooseX::Types::URI qw{ Uri };
 
-use Archive::RPM;
-use Digest::SHA1 qw{ sha1_hex };
-use File::Slurp;
 use File::Temp qw{ tempfile tempdir };
 use IO::Prompt;
 use Path::Class;
-use Readonly;
-use Template;
-use URI::Fetch;
-use URI::Find;
-
-use Fedora::App::ReviewTool::KojiTask;
 
 # debug...
 use Smart::Comments '###', '####';
@@ -48,6 +39,27 @@ has basedir => (
 );
 
 sub _build_basedir { "$ENV{HOME}/reviews" }
+
+#
+# Load the classes we need only when our run() method is called
+#
+
+requires 'run';
+
+before run => sub {
+
+    # load our classes here, so we don't pay a penalty loading them just so
+    # someone can do a "reviewtool help"
+    Class::MOP::load_class($_) for qw{
+        Archive::RPM
+        Digest::SHA1
+        File::Slurp
+        Template
+        URI::Fetch
+
+        Fedora::App::ReviewTool::KojiTask
+    };
+};
 
 ##
 ## Reviewing methods!
@@ -81,7 +93,7 @@ sub do_review {
     (-d "$pkg_dir") || $pkg_dir->mkpath;
     my $srpm = file $pkg_dir, $resp->http_response->filename;
     $self->log->debug("Writing out $srpm");
-    write_file "$srpm", $resp->content;
+    File::Slurp::write_file("$srpm", $resp->content);
 
     # access the header
     my $srpm_pkg = Archive::RPM->new($srpm);
@@ -137,10 +149,6 @@ sub do_review {
 
         # rename
 
-        # fetch - note the magic to keep the tarball from being uncompressed
-        local $URI::Fetch::HAS_ZLIB = 0;
-        $resp = URI::Fetch->fetch($source)
-            or die "Cannot fetch $source : " . URI::Fetch->errstr;
 
         #my $filename        = $resp->http_response->filename;
         my $filename = ($source->path_segments)[-1];
@@ -148,13 +156,12 @@ sub do_review {
         my $srpm     = file $pkg_dir, "$filename.srpm";
         my $upstream = file $pkg_dir, $filename;
 
-        # mv the srpm source to where it should be and write out upstream
         rename $upstream, $srpm;
-        write_file "$upstream", $content;
+        $self->_fetch($source, $upstream);
 
         # generate our sha1sums
-        my $s = $sha1sum{ $srpm->basename }     = sha1_hex($srpm->slurp);
-        my $u = $sha1sum{ $upstream->basename } = sha1_hex($upstream->slurp);
+        my $s = $sha1sum{ $srpm->basename }     = Digest::SHA1::sha1_hex($srpm->slurp);
+        my $u = $sha1sum{ $upstream->basename } = Digest::SHA1::sha1_hex($upstream->slurp);
 
         if ($s ne $u) {
 
@@ -162,6 +169,10 @@ sub do_review {
             ### $u
             die "Still need to fail sha1 check properly";
         }
+
+        # the easier to look through later
+        #Archive::Tar->extract_archive($filename);
+        system "cd $pkg_dir && tar -zxvf $filename";
     }
 
     ### %sha1sum
@@ -183,7 +194,7 @@ sub do_review {
 
             (my $file = "$uri") =~ s/^.*=//;
             $file = file $prebuilt_dir, $file;
-            write_file "$file", $resp->content;
+            File::Slurp::write_file("$file", $resp->content);
         }
 
         # FIXME
@@ -201,6 +212,8 @@ sub do_review {
         $stuff
             = `cd $pkg_dir && rpmlint *.spec && rpmcheck && cd noarch && rpmcheck`;
     }
+
+    system "cd $pkg_dir && xterm &";
 
     #my ($fh, $fn) = tempfile;
     my $fn = file $pkg_dir, "$name.review";
@@ -224,8 +237,6 @@ sub do_review {
         );
     }
 
-    #print "$output\n";
-
     system "vi $fn";
 
     if ($self->yes || prompt 'Post text of review? ', -YyNn1) {
@@ -242,6 +253,29 @@ sub do_review {
     }
 
     return;
+}
+
+sub _fetch {
+    my ($self, $uri, $file) = @_;
+
+    if ($uri->scheme eq 'http') {
+
+        # we prefer URI::Fetch for http, due to its forwarding, etc.
+        # note the magic to keep the tarball from being uncompressed
+        no warnings 'once';
+        local $URI::Fetch::HAS_ZLIB = 0;
+        my $resp = URI::Fetch->fetch($uri)
+            or die "Cannot fetch $uri : " . URI::Fetch->errstr;
+
+        File::Slurp::write_file("$file", $resp->content);
+        return $file;
+    }
+
+    # otherwise, LWP::Simple will do it...
+    Class::MOP::load_class('LWP::Simple');
+    LWP::Simple::getstore("$uri", "$file")
+        or die "LWP get failed on $uri to $file!";
+    return $file;
 }
 
 =head2 run_rpm("...")
@@ -285,7 +319,7 @@ $output
     }
 
     my (undef, $fn) = tempfile('rt.XXXXXXX', TMPDIR => 1);
-    write_file $fn, \$output;
+    File::Slurp::write_file($fn, \$output);
 
     return file $fn;
 }
@@ -302,11 +336,14 @@ necessary; returns undef if we can't find one.
 sub find_koji_task {
     my ($self, $bug, $srpm_pkg) = @_;
 
+    # FIXME -- we really should just check to make sure output exists for the
+    # found task.
+    my $fn = $srpm_pkg->rpm->basename;
+    return unless prompt "Look for existing scratch build for $fn? " => -YyNn1;
+
     print "\nSearching for koji tasks...\n\n";
     do { print "No koji tasks found!\n"; return } unless $bug->has_koji_tasks;
     print 'Found ' . $bug->num_koji_tasks . ".\n\n";
-
-    my $fn = $srpm_pkg->rpm->basename;
 
     for my $ktask ($bug->koji_tasks) {
 
