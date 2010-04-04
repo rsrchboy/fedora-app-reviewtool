@@ -39,7 +39,7 @@ has koji_target => (
     cmd_flag      => 'koji-target',
     documentation => 'Target for scratch build (default: dist-f13)',
 );
-sub _build_koji_target { 'dist-f13' }
+sub _build_koji_target { 'dist-f14' }
 
 has no_koji => (
     traits        => [ 'Getopt' ],
