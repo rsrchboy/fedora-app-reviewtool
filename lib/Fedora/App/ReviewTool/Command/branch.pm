@@ -18,17 +18,14 @@
 package Fedora::App::ReviewTool::Command::branch;
 
 use Moose;
+use namespace::autoclean;
 
 use IO::Prompt;
-use Text::SimpleTable;
 
 # debugging...
 #use Smart::Comments;
 
-use namespace::clean -except => 'meta';
-
-extends qw{ MooseX::App::Cmd::Command }; 
-
+extends 'MooseX::App::Cmd::Command';
 with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Config';
 with 'Fedora::App::ReviewTool::Submitter';
@@ -41,16 +38,12 @@ my %INITIAL_CC = (
 );
 
 has branches => (
-    is            => 'rw',
-    isa           => 'Str',
-    default       => 'F-11 F-12 F-13 devel',
+    is => 'rw', isa => 'Str', default => 'F-11 F-12 F-13 devel',
     documentation => 'initial branches to request',
 );
 
 has owners => (
-    is            => 'rw',
-    isa           => 'Str',
-    lazy_build    => 1,
+    is => 'rw', isa => 'Str', lazy_build => 1,
     documentation => 'package owners (for pkgdb)',
 );
 
@@ -82,12 +75,18 @@ sub build_cc {
     return $cc;
 }
 
+sub _usage_format {
+    return 'usage: %c branch <name|bug#> [<name|bug#> ...] %o';
+}
+
 sub run {
     my ($self, $opts, $args) = @_;
     my $bugs;
 
     $self->app->startup_checks;
     
+    Class::MOP::load_class('Text::SimpleTable');
+
     if (@$args == 0) {
 
         print "Finding our submitted bugs...\n";
@@ -146,12 +145,6 @@ sub run {
     return;
 }
 
-sub _sections { qw{ bugzilla submit } }
-
-sub _usage_format {
-    return 'usage: %c branch <name|bug#> [<name|bug#> ...] %o';
-}
-
 1;
 
 __END__
@@ -172,14 +165,9 @@ application.  It can take either bug ids / aliases on the command line or
 search for your open review tix, determine which ones are ready to branch,
 and ask you if you want to post a branch request.
 
-
-=head1 SUBROUTINES/METHODS
-
-FIXME/TODO!
-
 =head1 SEE ALSO
 
-L<Fedora::App::ReviewTool>
+L<reviewtool>, L<Fedora::App::ReviewTool>
 
 =head1 AUTHOR
 

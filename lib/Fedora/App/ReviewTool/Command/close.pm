@@ -18,23 +18,19 @@
 package Fedora::App::ReviewTool::Command::close;
 
 use Moose;
+use namespace::autoclean;
 
 use IO::Prompt;
 
 # debugging...
 #use Smart::Comments;
 
-use namespace::clean -except => 'meta';
-
-extends qw{ MooseX::App::Cmd::Command }; 
-
+extends 'MooseX::App::Cmd::Command';
 with 'Fedora::App::ReviewTool::Config';
 with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Submitter';
 
 our $VERSION = '0.10_01';
-
-sub _sections { qw{ bugzilla branch close } }
 
 sub run {
     my ($self, $opts, $args) = @_;
@@ -97,7 +93,7 @@ Close a review tix you've submitted and had approved.
 
 =head1 SEE ALSO
 
-L<Fedora::App::ReviewTool>
+L<reviewtool>, L<Fedora::App::ReviewTool>
 
 =head1 AUTHOR
 

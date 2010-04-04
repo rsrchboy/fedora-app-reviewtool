@@ -18,15 +18,10 @@
 package Fedora::App::ReviewTool::Command::setup;
 
 use Moose;
+use namespace::autoclean;
+use IO::Prompt;
 
 extends 'MooseX::App::Cmd::Command';
-
-use Config::Tiny;
-use IO::Prompt;
-use LWP::UserAgent;
-
-use namespace::clean -except => 'meta';
-
 with 'Fedora::App::ReviewTool::Config';
 with 'Fedora::App::ReviewTool::Submitter';
 
@@ -35,13 +30,13 @@ with 'Fedora::App::ReviewTool::Submitter';
 
 our $VERSION = '0.10_01';
 
-sub _sections { }
-
 sub run {
     my ($self, $opts, $args) = @_;
 
     print 'Setting up config for reviewtool v' .
         $Fedora::App::ReviewTool::VERSION . "\n\n";
+
+    Class::MOP::load_class($_) for qw{ Config::Tiny LWP::UserAgent };
 
     print "Checking our target reviewspace.\n";
 
@@ -160,8 +155,6 @@ Fedora::App::ReviewTool::Command::setup - do some initial setup magic
 =head1 DESCRIPTION
 
 We provide a "setup" command to do some initial configuration.
-
-=head1 SUBROUTINES/METHODS
 
 =head1 SEE ALSO
 

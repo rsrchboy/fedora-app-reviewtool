@@ -18,27 +18,19 @@
 package Fedora::App::ReviewTool::Command::submit;
 
 use Moose;
+use namespace::autoclean;
+use MooseX::Types::Path::Class ':all';
 
-use MooseX::Types::Path::Class qw{ File };
-
-use Archive::RPM;
-use DateTime;
 use IO::Prompt;
 use Path::Class;
-use Template;
 
-use namespace::clean -except => 'meta';
-
-extends qw{ MooseX::App::Cmd::Command };
-
+extends 'MooseX::App::Cmd::Command';
 with 'Fedora::App::ReviewTool::Config';
 with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Koji';
 with 'Fedora::App::ReviewTool::Submitter';
 
 our $VERSION = '0.10_01';
-
-sub _sections { qw{ base bugzilla koji submit } }
 
 # FIXME I'm pretty sure this is the wrong way to do it :)
 has '+logger' => ( traits => [ 'NoGetopt' ] );
@@ -61,23 +53,18 @@ has blocks => (
 );
 
 has additional_comment => (
-    traits        => [ 'Getopt' ],
-    is            => 'rw',
-    isa           => 'Str',
+    traits => [ 'Getopt' ], is => 'rw', isa => 'Str',
     cmd_flag      => 'additional-comment',
     cmd_aliases   => [ 'c' ],
     documentation => 'Additional comment to append to tix',
 );
 
 has force => (
-    traits => [ 'Getopt' ],
-    is => 'rw', 
-    isa => 'Bool',
+    traits => [ 'Getopt' ], is => 'rw', isa => 'Bool', default => 0,
     documentation => 'Force operation',
-    default => 0,
 );
 
-# death to aliases > 20! (not factorial, sadly)
+# aliases are currently constrained to max 20 chars
 sub _alias { length $_[1] < 21 ? $_[1] : undef }
 
 sub _usage_format {
@@ -89,9 +76,9 @@ sub run {
     
     # first things first.
     $self->app->startup_checks;
+    Class::MOP::load_class($_) for qw{ DateTime Archive::RPM };
 
-    my $total = scalar @$args;
-    my $i     = 0;
+    my ($total, $i) = (scalar @$args, 0);
 
     die "Pass srpms on the command line to submit.\n"
         unless @$args;
@@ -233,23 +220,9 @@ Fedora::App::ReviewTool::Command::submit - [submitter] submit a srpm for review
 
 Handles the various routine parts of submitting a package for review.
 
-=over 4
-
-=item B<koji scratch build>
-
-=item B<push to publicly-accessible fedorapeople.org>
-
-=item B<create a review bug on bugzilla>
-
-=back
-
-=head1 SUBROUTINES/METHODS
-
-TODO/FIXME!
-
 =head1 SEE ALSO
 
-L<Fedora::App::ReviewTool>.
+L<reviewtool>, L<Fedora::App::ReviewTool>
 
 =head1 AUTHOR
 

@@ -24,31 +24,19 @@ Fedora::App::ReviewTool::Command::take - [reviewer] take a package for review
 =cut
 
 use Moose;
+use namespace::autoclean;
 
-use Archive::RPM;
-use Digest::SHA1 qw{ sha1_hex };
-use File::Slurp;
-use File::Temp qw{ tempfile tempdir };
 use IO::Prompt;
-use LWP::Simple qw{ };
 use Path::Class;
-use Readonly;
-use Template;
-use URI::Fetch;
-use URI::Find;
 
 # debugging
 #use Smart::Comments;
 
-use namespace::clean -except => 'meta';
-
-extends qw{ MooseX::App::Cmd::Command };
-
+extends 'MooseX::App::Cmd::Command';
 with 'Fedora::App::ReviewTool::Config';
 with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Koji';
 with 'Fedora::App::ReviewTool::Reviewer';
-with 'Fedora::App::ReviewTool::Bodhi';
 
 #with 'MooseX::Role::XMLRPC::Client' => {
 #    name       => '_koji',
@@ -56,8 +44,6 @@ with 'Fedora::App::ReviewTool::Bodhi';
 #    login_info => 0,
 #};
 #sub _build__koji_uri { warn 'here'; return 'https://koji.fedoraproject.org/kojihub' }
-
-sub _sections { qw{ bugzilla fas } }
 
 sub run {
     my ($self, $opts, $args) = @_;
@@ -102,13 +88,10 @@ sub run {
             print "$bug assigned and marked under review.\n";
         }
 
-        next PKG_LOOP unless $self->yes || prompt 'Start review? ', -YyNn1;
-        
         $self->do_review($bug) 
             if $self->yes || prompt 'Begin review? ', -YyNn1;
         
         print "\n";
-        # end pkg loop...
     }
 
     return;
@@ -120,11 +103,9 @@ __END__
 
 This package provides a "take" command for reviewtool.
 
-=head1 SUBROUTINES/METHODS
-
 =head1 SEE ALSO
 
-L<Fedora::App::ReviewTool>
+L<reviewtool>, L<Fedora::App::ReviewTool>
 
 =head1 AUTHOR
 

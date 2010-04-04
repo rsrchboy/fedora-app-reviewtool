@@ -41,8 +41,6 @@ has yes => (
 
 with 'MooseX::ConfigFromFile';
 
-requires '_sections';
-
 has configfile => (
     is            => 'rw',
     isa           => File,
@@ -51,11 +49,7 @@ has configfile => (
     documentation => 'configuration file to use',
 );
 
-has _config => (
-    is => 'ro',
-    isa => 'Config::Tiny',
-    lazy_build => 1,
-);
+has _config => (is => 'ro', isa => 'Config::Tiny', lazy_build => 1);
 
 sub _build__config { Config::Tiny->read(shift->configfile) }
 
@@ -63,21 +57,7 @@ sub get_config_from_file {
     my ($class, $file) = @_;
 
     my $config = Config::Tiny->read($file);
-
-    ### hmm: $config
-
-    my %c;
-    CFG_LOOP:
-    for my $key ($class->_sections) {
-    
-        # skip if we don't have that section
-        next CFG_LOOP unless exists $config->{$key};
-
-        ### $key
-        %c = (%c, %{ $config->{$key} });
-    };
-
-    return \%c;
+    return $config->{_};
 }
 
 #############################################################################

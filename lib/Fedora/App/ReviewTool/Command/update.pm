@@ -18,7 +18,7 @@
 package Fedora::App::ReviewTool::Command::update;
 
 use Moose;
-use MooseX::Types::Path::Class qw{ File };
+use namespace::autoclean;
 
 use Archive::RPM;
 use IO::Prompt;
@@ -26,8 +26,6 @@ use Path::Class;
 
 # debugging...
 #use Smart::Comments;
-
-use namespace::clean -except => 'meta';
 
 our $VERSION = '0.10_01';
 
@@ -38,16 +36,12 @@ with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Koji';
 with 'Fedora::App::ReviewTool::Submitter';
 
-sub _sections { qw{ base bugzilla koji submit } }
-
 sub run {
     my ($self, $opts, $args) = @_;
     
     # first things first.
     $self->app->startup_checks;
-
-    my $total = scalar @$args;
-    my $i     = 0;
+    my ($total, $i) = (scalar @$args, 0);
 
     SRPM_LOOP:
     for my $srpm_file (@$args) {

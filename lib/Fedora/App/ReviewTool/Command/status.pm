@@ -18,19 +18,12 @@
 package Fedora::App::ReviewTool::Command::status;
 
 use Moose;
-
-use MooseX::Types::Path::Class qw{ File };
-
-use DateTime::TimeZone::Local;
-use Path::Class;
+use namespace::autoclean;
 
 # debugging
 #use Smart::Comments '###', '####';
 
-use namespace::clean -except => 'meta';
-
-extends qw{ MooseX::App::Cmd::Command };
-
+extends 'MooseX::App::Cmd::Command';
 with 'Fedora::App::ReviewTool::Config';
 with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Koji';
@@ -39,20 +32,14 @@ with 'Fedora::App::ReviewTool::Submitter';
 our $VERSION = '0.10_01';
 
 has just_reviews => (
-    is            => 'rw',
-    isa           => 'Bool',
-    default       => 0,
+    is => 'rw', isa => 'Bool', default => 0,
     documentation => 'Only list reviews',
 );
 
 has just_submissions=> (
-    is            => 'rw',
-    isa           => 'Bool', 
-    default       => 0,
+    is => 'rw', isa => 'Bool', default => 0,
     documentation => 'Only list submissions',
 );
-
-sub _sections { qw{ base bugzilla koji status } }
 
 sub _usage_format {
     return 'usage: %c status %o';
@@ -85,30 +72,24 @@ sub run {
 
 __PACKAGE__->meta->make_immutable;
 
-1;
-
 __END__
 
 =head1 NAME
 
-Fedora::App::ReviewTool::Command::status - [submitter] submit a srpm for review
+Fedora::App::ReviewTool::Command::status - Check up on your reviews 
 
 =head1 SYNOPSIS
 
-This package provides a "status" command for reviewtool.
-
-=head1 DESCRIPTION
-
-=head1 SUBROUTINES/METHODS
+This package provides a "status" command for reviewtool, which lists out the
+status of reviews (submitted and taken) that are not in a CLOSED state.
 
 =head1 SEE ALSO
 
-L<Fedora::App::ReviewTool>
+L<reviewtool>, L<Fedora::App::ReviewTool>
 
 =head1 AUTHOR
 
 Chris Weyl  <cweyl@alumni.drew.edu>
-
 
 =head1 LICENSE AND COPYRIGHT
 

@@ -18,19 +18,13 @@
 package Fedora::App::ReviewTool::Command::check;
 
 use Moose;
-
+use namespace::autoclean;
 use MooseX::Types::Path::Class qw{ File };
 
-use Archive::RPM;
-use DateTime;
 use IO::Prompt;
 use Path::Class;
-use Template;
 
-use namespace::clean -except => 'meta';
-
-extends qw{ MooseX::App::Cmd::Command };
-
+extends 'MooseX::App::Cmd::Command';
 with 'Fedora::App::ReviewTool::Config';
 with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Submitter';
@@ -40,8 +34,6 @@ with 'Fedora::App::ReviewTool::Submitter';
 
 our $VERSION = '0.10_01';
 
-sub _sections { qw{ base bugzilla koji submit } }
-
 sub _usage_format { 'usage: %c check <package1> [<package2> ...] %o' } 
 
 sub run {
@@ -50,8 +42,7 @@ sub run {
     # first things first.
     $self->app->startup_checks;
 
-    my $total = scalar @$args;
-    my $i     = 0;
+    my ($total, $i) = (scalar @$args, 0);
 
     die "Pass packages to check for on the command line.\n"
         unless @$args;
@@ -89,25 +80,7 @@ __END__
 
 =head1 NAME
 
-Fedora::App::ReviewTool::Command::submit - [submitter] submit a srpm for review
-
-=head1 DESCRIPTION
-
-Handles the various routine parts of submitting a package for review.
-
-=over 4
-
-=item B<koji scratch build>
-
-=item B<push to publicly-accessible fedorapeople.org>
-
-=item B<create a review bug on bugzilla>
-
-=back
-
-=head1 SUBROUTINES/METHODS
-
-TODO/FIXME!
+Fedora::App::ReviewTool::Command::check - [submitter] checks to see if a review has been submitted already
 
 =head1 SEE ALSO
 

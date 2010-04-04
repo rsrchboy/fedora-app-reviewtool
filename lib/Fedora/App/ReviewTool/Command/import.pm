@@ -20,28 +20,19 @@ package Fedora::App::ReviewTool::Command::import;
 use autodie 'system';
 
 use Moose;
+use namespace::autoclean;
 
 use MooseX::Types::Path::Class ':all';
 
-use Archive::RPM;
-use File::Slurp;
 use IO::Prompt;
-use Term::Completion::Path 'Complete';
-use IPC::System::Simple;
-use Path::Class;
-use URI::Fetch;
-
 use Log::Log4perl ':easy';
-
-use Fedora::App::ReviewTool::Task;
+use Term::Completion::Path 'Complete';
+use Path::Class;
 
 # debugging...
 #use Smart::Comments;
 
-use namespace::clean -except => 'meta';
-
-extends qw{ MooseX::App::Cmd::Command }; 
-
+extends 'MooseX::App::Cmd::Command';
 with 'Fedora::App::ReviewTool::Config';
 with 'Fedora::App::ReviewTool::Bugzilla';
 with 'Fedora::App::ReviewTool::Bodhi';
@@ -50,8 +41,6 @@ with 'Fedora::App::ReviewTool::Submitter';
 with 'MooseX::Workers';
 
 our $VERSION = '0.10_01';
-
-sub _sections { qw{ bugzilla fas } }
 
 has _jobs => (
     metaclass => 'Collection::Array',
@@ -69,7 +58,7 @@ has _jobs => (
 );
 
 has tmpdir => (is => 'ro', isa => Dir, coerce => 1, lazy_build => 1);
-sub _build_tmpdir { File::Temp::tempdir }
+sub _build_tmpdir { Class::MOP::load_class('File::Temp'); File::Temp::tempdir() }
 
 has cvs_root => (is => 'ro', isa => 'Str', lazy_build => 1);
 
@@ -80,6 +69,12 @@ sub run {
     my ($self, $opts, $args) = @_;
    
     $self->app->startup_checks;
+
+    Class::MOP::load_class(qw{
+
+        Archive::RPM File::Slurp URI::Fetch File::Slurp
+        Fedora::App::ReviewTool::Task
+    });
 
     my $bugs;
     
@@ -126,7 +121,7 @@ sub run {
             my $r = URI::Fetch->fetch($srpm_uri) || die URI::Fetch->errstr;
             my @parts = $srpm_uri->path_segments;
             $srpm_file = file($dir, $parts[-1]);
-            write_file "$srpm_file", $r->content;
+            File::Slurp::write_file("$srpm_file", $r->content);
         }
         else {
 
