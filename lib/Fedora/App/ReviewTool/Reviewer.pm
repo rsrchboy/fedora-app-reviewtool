@@ -52,6 +52,7 @@ before run => sub {
     # someone can do a "reviewtool help"
     Class::MOP::load_class($_) for qw{
         Archive::RPM
+        CPAN::Easy
         Digest::SHA1
         File::Slurp
         Template
@@ -70,6 +71,9 @@ sub do_review {
 
     my $id   = $bug->id;
     my $name = $bug->package_name;
+    my $dist = $name;
+    $dist =~ s/^perl-//;
+    $dist =~ s/-/::/g;
 
     $self->log->info("Working on RHBZ#$id");
 
@@ -232,6 +236,8 @@ sub do_review {
                 koji_url => $koji_task->uri,
                 license  => $spec_license,
                 rpmcheck => $stuff,
+                distinfo => CPAN::Easy->get_info($dist),
+                version  => `rpmquery --specfile --qf '%{version}' $spec`,
             },
             "$fn"
         );

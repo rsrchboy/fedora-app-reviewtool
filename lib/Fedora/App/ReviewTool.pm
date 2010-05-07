@@ -152,6 +152,12 @@ NOTE: License auto-detection only works for perl, and not even there yet.
 Spec looks sane, clean and consistent; license is correct ([% license %]);
 make test passes cleanly.
 
+[% IF distinfo.version == version -%]
+Latest version ([% version %]) is being packaged.
+[% ELSE -%]
+Older version is being packaged (packaged: [% version %], latest: [% distinfo.version %]).
+[% END -%]
+
 Source tarballs match upstream (sha1sum):
 [% FOREACH pkg = sha1sum.keys.sort -%]
 [% sha1sum.$pkg %] [% pkg %]

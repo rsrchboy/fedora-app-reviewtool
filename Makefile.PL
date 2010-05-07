@@ -26,6 +26,7 @@ requires 'MooseX::Workers' => '0.04';
 
 # reviewtool
 requires 'Config::Tiny';
+requires 'CPAN::Easy';
 requires 'Crypt::OpenSSL::X509';
 requires 'Data::Section';
 requires 'Digest::SHA1';
