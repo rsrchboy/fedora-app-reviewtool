@@ -36,6 +36,7 @@ requires 'File::Temp';
 requires 'FindBin';
 requires 'IO::Prompt';
 requires 'IPC::System::Simple';
+requires 'List::MoreUtils';
 requires 'Path::Class';
 requires 'Readonly';
 requires 'LWP::Simple';

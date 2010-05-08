@@ -23,6 +23,7 @@ use MooseX::Types::Path::Class qw{ Dir File };
 use MooseX::Types::URI qw{ Uri };
 
 use File::Temp qw{ tempfile tempdir };
+use List::MoreUtils 'uniq';
 use IO::Prompt;
 use Path::Class;
 
@@ -201,9 +202,27 @@ sub do_review {
             File::Slurp::write_file("$file", $resp->content);
         }
 
-        # FIXME
-        $stuff  = `cd $pkg_dir && rpmlint *.spec`;
-        $stuff .= `cd $prebuilt_dir  && rpmcheck`;
+        # rpmlint, check prov/req, etc
+        $stuff  = '====> rpmlint' . $spec->basename . "\n";
+        $stuff .= `rpmlint $spec`;
+
+        chdir $prebuilt_dir;
+        for my $file (<*.rpm>) {
+
+            $stuff .= "======> $file\n";
+            $stuff .= "====> rpmlint\n";
+            $stuff .= `rpmlint $file`;
+
+            for my $dep (qw{ provides requires obsoletes conflicts }) {
+
+                $stuff .= "====> $dep\n";
+                $stuff .= join "\n",
+                    uniq sort grep { ! /^rpmlib\(/ } `rpm -qp --$dep $file`
+                    ;
+            }
+
+            $stuff .= "\n";
+        }
     }
     else {
 
