@@ -35,6 +35,7 @@ use Path::Class;
 extends 'MooseX::App::Cmd::Command';
 with 'Fedora::App::ReviewTool::Config';
 with 'Fedora::App::ReviewTool::Bugzilla';
+with 'Fedora::App::ReviewTool::Bodhi';
 with 'Fedora::App::ReviewTool::Koji';
 with 'Fedora::App::ReviewTool::Reviewer';
 
