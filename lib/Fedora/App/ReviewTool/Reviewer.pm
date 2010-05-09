@@ -203,20 +203,20 @@ sub do_review {
         }
 
         # rpmlint, check prov/req, etc
-        $stuff  = '====> rpmlint' . $spec->basename . "\n";
-        $stuff .= `rpmlint $spec`;
+        $stuff  = '====> rpmlint ' . $spec->basename . "\n";
+        $stuff .= `rpmlint $spec` . "\n";
 
         chdir $prebuilt_dir;
         for my $file (<*.rpm>) {
 
-            $stuff .= "======> $file\n";
+            $stuff .= "======> $file <======\n";
             $stuff .= "====> rpmlint\n";
             $stuff .= `rpmlint $file`;
 
             for my $dep (qw{ provides requires obsoletes conflicts }) {
 
                 $stuff .= "====> $dep\n";
-                $stuff .= join "\n",
+                $stuff .=
                     uniq sort grep { ! /^rpmlib\(/ } `rpm -qp --$dep $file`
                     ;
             }
