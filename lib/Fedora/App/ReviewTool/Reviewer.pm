@@ -26,6 +26,7 @@ use File::Temp qw{ tempfile tempdir };
 use List::MoreUtils 'uniq';
 use IO::Prompt;
 use Path::Class;
+use TryCatch;
 
 # debug...
 use Smart::Comments '###', '####';
@@ -216,7 +217,7 @@ sub do_review {
             for my $dep (qw{ provides requires obsoletes conflicts }) {
 
                 $stuff .= "====> $dep\n";
-                $stuff .=
+                $stuff .= join "\n",
                     uniq sort grep { ! /^rpmlib\(/ } `rpm -qp --$dep $file`
                     ;
             }
@@ -246,6 +247,16 @@ sub do_review {
 
     if (not $fn->stat) {
 
+        # hmm.  This is CPAN-specific; we probably ought not to have this in
+        # here, but off in a TraitFor somewhere
+        my $distinfo;
+        try {
+            $distinfo = CPAN::Easy->get_info($dist);
+        }
+        catch {
+            $self->log("$dist not found on the CPAN.");
+        }
+
         # writing out a new review file from the template
         my $tt2 = Template->new;
         $tt2->process(
@@ -255,7 +266,8 @@ sub do_review {
                 koji_url => $koji_task->uri,
                 license  => $spec_license,
                 rpmcheck => $stuff,
-                distinfo => CPAN::Easy->get_info($dist),
+                #distinfo => CPAN::Easy->get_info($dist),
+                distinfo => $distinfo,
                 version  => `rpmquery --specfile --qf '%{version}' $spec`,
             },
             "$fn"
